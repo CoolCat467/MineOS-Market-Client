@@ -31,6 +31,8 @@ class Token(NamedTuple):
     """Base token."""
 
     text: str
+    line: int
+    column: int
 
 
 class Identifier(Token):
@@ -124,64 +126,73 @@ HEXADECIMAL = re.compile(
 
 def tokenize(text: str) -> list[Token]:
     """Tokenize lua code."""
-    text = text.translate({13: ""})
+    line = 1
+    column = 0
+
     tokens: list[Token] = []
     while True:
+        read = 1
+        last_line = line
+        token: Token | None = End
+
         if not text:
-            tokens.append(End(""))
-            return tokens
-        if text[0] in {" ", "\n", "\t"}:
-            text = text[1:]
-        elif text[0] in "()[]{},*":
-            tokens.append(Separator(text[0]))
-            text = text[1:]
+            read = 0
+        elif text[0] in {" ", "\r", "\t"}:
+            token = None
+        elif text[0] == "\n":
+            token = None
+            line += 1
+        elif text[0] in "()[]{},":
+            token = Separator
         elif text.startswith("--"):
             match_ = COMMENT.match(text)
             if not match_:
                 raise ParseError(f"Could not parse comment from {text!r}")
 
-            comment = match_.group(0)
-            tokens.append(Comment(comment.rstrip()))
-            text = text[len(comment) :]
+            token = Comment
+            read = match_.end() - 1
         elif text[0] == "=":
-            tokens.append(Assignment(text[0]))
-            text = text[1:]
+            token = Assignment
         elif text[0] in {'"', "'"}:
-            content = ""
+            read = 1
             start_bracket = text[0]
-            text = text[1:]
-            while True:
-                if not text:
+            while read < len(text):
+                char = text[read]
+                if char == start_bracket and text[read - 1] != "\\":
+                    read += 1
                     break
-                char = text[0]
-                text = text[1:]
-                if char == start_bracket and content[-1] != "\\":
-                    break
-                content += char
+                read += 1
 
-            tokens.append(StrLit(content))
+            token = StrLit
         else:
-            if match_ := HEXADECIMAL.match(text):
-                ##print(f'{match_.groups() = }')
+            if match_ := (HEXADECIMAL.match(text) or NUMERIC.match(text)):
                 tokens.append(
-                    Numeric("$".join(x or "" for x in match_.groups())),
+                    Numeric(
+                        "$".join(x or "" for x in match_.groups()),
+                        line,
+                        column,
+                    ),
                 )
-                text = text[match_.end() :]
-                continue
-            if match_ := NUMERIC.match(text):
-                ##print(f'{match_.groups() = }')
-                tokens.append(
-                    Numeric("$".join(x or "" for x in match_.groups())),
-                )
-                text = text[match_.end() :]
-                continue
-            if match_ := IDENTIFIER.match(text):
-                identifier = match_.group(0)
-                tokens.append(Identifier(identifier))
-                text = text[match_.end() :]
-                continue
-            print(f"{tokens = }")
-            raise ParseError(f"Could not parse {text!r}")
+
+                token = None
+                read = match_.end()
+            elif match_ := IDENTIFIER.match(text):
+                token = Identifier
+                read = match_.end()
+            else:
+                print(f"{tokens = }")
+                raise ParseError(f"Could not parse {text!r}")
+
+        if last_line != line:
+            column = 0
+        else:
+            column += read
+
+        if token is not None:
+            tokens.append(token(text[:read], line, column))
+            if issubclass(token, End):
+                return tokens
+        text = text[read:]
 
 
 T = TypeVar("T")
@@ -505,7 +516,7 @@ def run() -> None:
  j = 314.16e-2
  e = 0xBEBADA""",
     )
-    ##    print(f'{tokens = }')
+    ##print(f'{tokens = }')
     parser = Parser(tokens)
     for _ in range(6):
         print(repr(parser.parse_identifier()))
