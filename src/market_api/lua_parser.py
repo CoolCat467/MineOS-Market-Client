@@ -1,31 +1,48 @@
-"""Lua parser."""
+"""Lua Parser."""
 
 # Programmed by CoolCat467
 
 from __future__ import annotations
 
-__title__ = "Lua parser"
+# Lua Parser
+# Copyright (C) 2023  CoolCat467
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+__title__ = "Lua Parser"
 __author__ = "CoolCat467"
-__version__ = "0.0.0"
+__license__ = "GNU General Public License Version 3"
 
 
 import re
 from collections import deque
-from collections.abc import Collection
-from typing import Any, Generic, NamedTuple, NoReturn, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    NamedTuple,
+    NoReturn,
+    TypeVar,
+    cast,
+)
+
+if TYPE_CHECKING:
+    from collections.abc import Collection
 
 
 class ParseError(Exception):
-    """Raised on any type comment parse error.
-
-    The 'comment' attribute contains the comment that produced the error.
-    """
-
-    def __init__(self, comment: str | None = None) -> None:
-        """Initialize with comment."""
-        if comment is None:
-            comment = ""
-        super().__init__(comment)
+    """Raised on any type comment parse error."""
 
 
 class Token(NamedTuple):
@@ -144,7 +161,7 @@ def tokenize(text: str) -> list[Token]:
     while True:
         read = 1
         last_line = line
-        token: Token | None = End
+        token: type[Token] | None = End
 
         if not text:
             read = 0
@@ -210,7 +227,7 @@ class Value(Generic[T]):
         self,
         name: str,
         *args: T,
-    ) -> None:
+    ):
         """Set up name and arguments."""
         self.name = name
         if args:
@@ -303,7 +320,7 @@ class Parser:
         ##if value is None:
         ##    return "None"
 
-    def next(self) -> Token:  # noqa: A003
+    def next(self) -> Token:
         """Get next token."""
         token = self.peek()
         self.i += 1
@@ -388,6 +405,8 @@ class Parser:
 
         text = token.text
         match_ = HEXADECIMAL.match(text) or NUMERIC.match(text)
+        if match_ is None:
+            self.fail("Numeric literal regular expression did not match")
         decimal, fractional, exponent = match_.groups()
 
         is_float = fractional or exponent
@@ -406,13 +425,13 @@ class Parser:
             value = self.parse_value()
             self.expect("]")
             self.expect_type(Assignment)
-            return Value("Field", value, self.parse_value())
+            return Value("Field", value, self.parse_value())  # type: ignore[return-value]
         if isinstance(self.peek(), Identifier):
-            return self.parse_identifier()
+            return self.parse_identifier()  # type: ignore[return-value]
         index = self.next_indexed_field.pop()
         self.next_indexed_field.append(index + 1)
         # return Value("Indexed", self.parse_value())
-        return Value("Field", Value("Integer", index), self.parse_value())
+        return Value("Field", Value("Integer", index), self.parse_value())  # type: ignore[return-value]
 
     def parse_table(self) -> Value[object]:
         """Parse table."""
@@ -571,8 +590,8 @@ def parse_lua_table(text: str, convert_lists: bool = True) -> object:
 def run() -> None:
     """Run test of module."""
     tokens = tokenize(
-        """ a = 'alo\\n123"'
- a = "alo\\n123\\""
+        """ a = 'also\\n123"'
+ a = "also\\n123\\""
  a = '\\97lo\\10\\04923"'
  c = 0X1.921FB54442D18P+1
  j = 314.16e-2
@@ -582,7 +601,6 @@ def run() -> None:
     # print(f'{tokens = }')
     ##for token in tokens:
     ##    print(token)
-    global parser
     parser = Parser(tokens)
     for _ in range(7):
         print(str(parser.parse_identifier()))

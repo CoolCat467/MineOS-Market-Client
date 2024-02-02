@@ -1,13 +1,30 @@
-"""Basically Lua Table parsing to and writing from Python dictionary."""
+"""Convert - Lua Table Parsing and converting to and from Python objects."""
 
 # Programmed by CoolCat467
+
+from __future__ import annotations
+
+# Convert - Lua Table Parsing and converting to and from Python objects
+# Copyright (C) 2023  CoolCat467
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 __title__ = "Convert"
 __author__ = "CoolCat467"
 __version__ = "1.4.2"
-__ver_major__ = 1
-__ver_minor__ = 4
-__ver_patch__ = 2
+__license__ = "GNU General Public License Version 3"
+
 
 import json
 from typing import Any
@@ -139,15 +156,15 @@ def lang_to_json(
                 # to store as python object though.
                 if close_stack[-1] and key == "0":  # If supposed to be list
                     com = False
-                    strng = False
+                    string = False
                     if value.endswith(","):
                         value = value[:-1]
                         com = True
                     if value.startswith('"') and value.endswith('"'):
                         value = value[1:-1]
-                        strng = True
+                        string = True
                     value += "$$$$"
-                    if strng:
+                    if string:
                         value = f'"{value}"'
                     if com:
                         value += ","
