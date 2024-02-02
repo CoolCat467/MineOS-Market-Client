@@ -227,7 +227,7 @@ class Value(Generic[T]):
         self,
         name: str,
         *args: T,
-    ):
+    ) -> None:
         """Set up name and arguments."""
         self.name = name
         if args:
@@ -418,26 +418,26 @@ class Parser:
         value = float(text) if is_float else int(text)
         return Value("Float" if is_float else "Integer", value)
 
-    def parse_field(self) -> Value[str | Value[object]]:
+    def parse_field(self) -> Value[Any]:
         """Parse table field."""
         if self.lookup() == "[":
             self.expect("[")
             value = self.parse_value()
             self.expect("]")
             self.expect_type(Assignment)
-            return Value("Field", value, self.parse_value())  # type: ignore[return-value]
+            return Value("Field", value, self.parse_value())
         if isinstance(self.peek(), Identifier):
-            return self.parse_identifier()  # type: ignore[return-value]
+            return self.parse_identifier()
         index = self.next_indexed_field.pop()
         self.next_indexed_field.append(index + 1)
         # return Value("Indexed", self.parse_value())
-        return Value("Field", Value("Integer", index), self.parse_value())  # type: ignore[return-value]
+        return Value("Field", Value("Integer", index), self.parse_value())
 
-    def parse_table(self) -> Value[object]:
+    def parse_table(self) -> Value[Value[Any]]:
         """Parse table."""
         self.expect("{")
         self.next_indexed_field.append(1)
-        fields = []
+        fields: list[Value[object | Value[object]]] = []
         while self.lookup() != "}":
             fields.append(self.parse_field())
 
@@ -447,7 +447,7 @@ class Parser:
         self.expect("}")
         return Value("Table", *fields)
 
-    def parse_function_arguments(self) -> list[Value[object]]:
+    def parse_function_arguments(self) -> list[Value[Any]]:
         """Parse function call arguments."""
         self.expect("(")
         arguments = []
@@ -459,7 +459,7 @@ class Parser:
         self.expect(")")
         return arguments
 
-    def parse_identifier(self) -> Value[object]:
+    def parse_identifier(self) -> Value[Any]:
         """Parse identifier."""
         identifier = self.expect_type(Identifier)
         text = identifier.text
@@ -478,7 +478,7 @@ class Parser:
             return Value(
                 "FunctionCall",
                 Value("Identifier", text),
-                Value("Arguments", *self.parse_table()),
+                Value("Arguments", *self.parse_table()),  # type: ignore[misc]
             )
         if isinstance(
             self.peek(),
@@ -487,7 +487,7 @@ class Parser:
             return Value(
                 "FunctionCall",
                 Value("Identifier", text),
-                Value("Arguments", *self.parse_string_literal()),
+                Value("Arguments", *self.parse_string_literal()),  # type: ignore[misc]
             )
         if isinstance(self.peek(), Assignment):
             self.expect_type(Assignment)
@@ -519,7 +519,7 @@ def parse_lua_table(text: str, convert_lists: bool = True) -> object:
     value = parser.parse_value()
     # print(value)
 
-    def read_value(value: Value[str | Value[object]]) -> object:
+    def read_value(value: Value[object]) -> object:
         """Read value base function."""
         assert isinstance(value, Value)
         if value.name in {
@@ -537,12 +537,12 @@ def parse_lua_table(text: str, convert_lists: bool = True) -> object:
         raise NotImplementedError(value.name)
 
     def read_assignment(
-        value: Value[Value[str | Value[object]]],
+        value: Value[Any],
     ) -> tuple[str, object]:
         """Read an Assignment value."""
         assert value.name == "Assignment"
         key, data = value.args
-        return (read_value(key), read_value(data))
+        return (read_value(key), read_value(data))  # type: ignore[return-value]
 
     def read_field(
         value: Value[object],
@@ -556,7 +556,11 @@ def parse_lua_table(text: str, convert_lists: bool = True) -> object:
         #    return (str(len(table)), read_value(value.args[0]))
         if value.name == "Field":
             field, field_value = value.args
-            return (read_value(field), read_value(field_value))
+            assert isinstance(field, Value)
+            assert isinstance(field_value, Value)
+            read_field_obj = read_value(field)
+            assert isinstance(read_field_obj, str | int)
+            return (read_field_obj, read_value(field_value))
         raise NotImplementedError(value.name)
 
     def read_table(

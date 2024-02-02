@@ -247,7 +247,7 @@ class SearchPublication(NamedTuple):
 
 async def get_publications(
     client: httpx.AsyncClient,
-    category_id: PUBLICATION_CATEGORY = None,
+    category_id: PUBLICATION_CATEGORY | None = None,
     offset: int | None = None,
     count: int = 100,
     search: str | None = None,
