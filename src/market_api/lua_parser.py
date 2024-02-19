@@ -552,9 +552,10 @@ def parse_lua_table(text: str, convert_lists: bool = True) -> object:
             return read_comment(value)
         raise NotImplementedError(value.name)
 
-    def read_comment(value: Value[str]) -> str:
+    def read_comment(value: Value[object]) -> str:
         assert value.name == "Comment"
-        return value.args
+        assert isinstance(value.args[0], str)
+        return value.args[0]
 
     def read_assignment(
         value: Value[Any],
