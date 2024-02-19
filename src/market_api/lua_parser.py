@@ -294,7 +294,7 @@ def list_or(values: Collection[str]) -> str:
 
 
 class Parser:
-    """Implementation of the type comment parser."""
+    """Implementation of the lua parser."""
 
     __slots__ = ("tokens", "i", "next_indexed_field")
 
@@ -426,8 +426,11 @@ class Parser:
             self.expect("]")
             self.expect_type(Assignment)
             return Value("Field", value, self.parse_value())
-        if isinstance(self.peek(), Identifier):
+        peek = self.peek()
+        if isinstance(peek, Identifier):
             return self.parse_identifier()
+        if isinstance(peek, Comment):
+            return self.parse_comment()
         index = self.next_indexed_field.pop()
         self.next_indexed_field.append(index + 1)
         # return Value("Indexed", self.parse_value())
@@ -439,7 +442,10 @@ class Parser:
         self.next_indexed_field.append(1)
         fields: list[Value[object | Value[object]]] = []
         while self.lookup() != "}":
-            fields.append(self.parse_field())
+            field = self.parse_field()
+            fields.append(field)
+            if field.name == "Comment":
+                continue
 
             if self.expect_or({",", ";", "}"}).text == "}":
                 self.back()
@@ -498,14 +504,22 @@ class Parser:
             )
         return Value("Identifier", text)
 
+    def parse_comment(self) -> Value[str]:
+        """Parse Comment."""
+        comment = self.expect_type(Comment)
+        return Value("Comment", comment.text)
+
     def parse_value(self) -> Value[Any]:
         """Parse value."""
-        if isinstance(self.peek(), StrLit):
+        peek = self.peek()
+        if isinstance(peek, StrLit):
             return self.parse_string_literal()
-        if isinstance(self.peek(), Numeric):
+        if isinstance(peek, Numeric):
             return self.parse_numeric_literal()
-        if isinstance(self.peek(), Identifier):
+        if isinstance(peek, Identifier):
             return self.parse_identifier()
+        if isinstance(peek, Comment):
+            return self.parse_comment()
         if self.lookup() == "{":
             return self.parse_table()
         raise NotImplementedError(self.peek())
@@ -534,7 +548,13 @@ def parse_lua_table(text: str, convert_lists: bool = True) -> object:
             return read_table(cast(Value[Value[object]], value))
         if value.name == "Assignment":
             return read_assignment(value)
+        if value.name == "Comment":
+            return read_comment(value)
         raise NotImplementedError(value.name)
+
+    def read_comment(value: Value[str]) -> str:
+        assert value.name == "Comment"
+        return value.args
 
     def read_assignment(
         value: Value[Any],

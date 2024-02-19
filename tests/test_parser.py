@@ -1,4 +1,24 @@
+import pytest
 from market_api import lua_parser
+
+
+@pytest.mark.parametrize(
+    ("constant", "expect"),
+    [
+        ("3.0", "Float[3.0]"),
+        ("3.1416", "Float[3.1416]"),
+        ("314.16e-2", "Float[3.1416]"),
+        ("0.31416E1", "Float[0.31416]"),
+        ("34e1", "Float[340.0]"),
+        ("0x0.1E", "Float[0.1171875]"),
+        ("0xA23p-4", "Float[162.1875]"),
+        ("0X1.921FB54442D18P+1", "Float[3.141592653589793]"),
+    ],
+)
+def test_parse_float_constants(constant: str, expect: str) -> None:
+    tokens = lua_parser.tokenize(constant)
+    parser = lua_parser.Parser(tokens)
+    assert str(parser.parse_numeric_literal()) == expect
 
 
 def test_tokenization() -> None:

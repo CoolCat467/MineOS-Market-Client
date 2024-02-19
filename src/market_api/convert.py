@@ -1,11 +1,11 @@
-"""Convert - Lua Table Parsing and converting to and from Python objects."""
+"""Convert - Lua Table Conversion to and from Python Dictionaries."""
 
 # Programmed by CoolCat467
 
 from __future__ import annotations
 
-# Convert - Lua Table Parsing and converting to and from Python objects
-# Copyright (C) 2023  CoolCat467
+# Convert - Lua Table Conversion to and from Python Dictionaries
+# Copyright (C) 2022-2024  CoolCat467
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,7 +70,6 @@ def lang_to_json(
     lang_data: str,
 ) -> tuple[dict[str, Any], dict[str, dict[int, str]]]:
     """Fix language data to be readable by json parser. Return data and comments."""
-    print(f"{lang_data = }")
     if not lang_data[-1]:
         lang_data = lang_data[:-1]
     lines = lang_data.splitlines()
@@ -102,7 +101,6 @@ def lang_to_json(
             continue
         new_lines.append(line)
     lines, new_lines = new_lines, []
-    print(f"{lines = }")
 
     section = [("null", 0)]
     close_stack: list[bool] = []
@@ -257,10 +255,11 @@ def dict_to_lang(
             if path in comments:
                 for offset, comment in comments[path].items():
                     pos = sec_start + offset
-                    if pos >= len(new_lines):
-                        indent = ""
-                    else:
-                        indent = new_lines[pos].count("\t") * "\t"
+                    indent = (
+                        ""
+                        if pos >= len(new_lines)
+                        else new_lines[pos].count("\t") * "\t"
+                    )
                     comment = f"{indent}-- {comment}" if comment else indent
                     new_lines.insert(pos, comment)
 
@@ -287,10 +286,11 @@ def dict_to_lang(
         if path in comments:
             for offset, comment in comments[path].items():
                 pos = sec_start + offset
-                if pos >= len(new_lines):
-                    indent = ""
-                else:
-                    indent = new_lines[pos].count("\t") * "\t"
+                indent = (
+                    ""
+                    if pos >= len(new_lines)
+                    else new_lines[pos].count("\t") * "\t"
+                )
 
                 comment = f"{indent}-- {comment}" if comment else indent
                 new_lines.insert(pos, comment)
