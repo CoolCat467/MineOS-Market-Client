@@ -101,9 +101,11 @@ async def download_mineos(
     async with MK_FILES_LOCK:
         if not await path.parent.exists():
             await path.parent.mkdir(parents=True)
+    response = await client.get(url)
+    response.raise_for_status()
     async with await path.open("wb") as file:
-        response = await client.get(url)
-        await file.write(response.content)
+        await file.write(await response.aread())
+    await response.aclose()
 
 
 async def download_publication(
@@ -168,7 +170,7 @@ async def async_run() -> None:
             "\nPublication Manifest download complete.\nDownloading files...",
         )
         await download_publication(client, publication)
-    print("\nFile download complete.")
+    print("\nPublication download complete.")
 
 
 def run() -> None:
