@@ -25,11 +25,12 @@ async def async_run() -> None:
     """Run async."""
     # Create httpx client
     async with httpx.AsyncClient() as client:  # http2 = True
-        # Get publication number 1936 and print it out nicely
+        file_id = 1936
+        # Get publication number and print it out nicely
         pretty_print_response(
             await get_publication(
                 client,
-                file_id=1936,
+                file_id=file_id,
                 language_id=PUBLICATION_LANGUAGE.English,
             ),
         )
@@ -38,7 +39,7 @@ async def async_run() -> None:
         pretty_print_response(await get_statistics(client))
 
         # Print out reviews for publication number 1936
-        pretty_print_response(await get_reviews(client, 1936))
+        pretty_print_response(await get_reviews(client, file_id))
 
 
 def run() -> None:
