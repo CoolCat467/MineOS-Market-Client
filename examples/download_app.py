@@ -101,7 +101,7 @@ async def download_mineos(
     async with MK_FILES_LOCK:
         if not await path.parent.exists():
             await path.parent.mkdir(parents=True)
-    response = await client.get(url)
+    response = await client.get(url, follow_redirects=True)
     response.raise_for_status()
     async with await path.open("wb") as file:
         await file.write(await response.aread())
