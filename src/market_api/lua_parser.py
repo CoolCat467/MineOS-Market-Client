@@ -62,6 +62,14 @@ class Token(NamedTuple):
         """End line number."""
         return self.line + self.text.count("\n")
 
+    def location(self) -> str:
+        """Location of token."""
+        return f"{self.line}:{self.column}"
+
+    def selection(self) -> str:
+        """Select location of token."""
+        return f"{self.location()}:{self.endline}:{self.endcolumn}"
+
 
 class Identifier(Token):
     """A lua identifier, such as a variable name."""
@@ -340,16 +348,17 @@ class Parser:
 
     def expect(self, text: str) -> None:
         """Expect next token text to be text."""
-        got = self.next().text
+        token = self.next()
+        got = token.text
         if got != text:
-            self.fail(f"Expected {text!r}, got {got!r}")
+            self.fail(f"Expected {text!r}, got {got!r} ({token.location()})")
 
     def expect_or(self, options: Collection[str]) -> Token:
         """Expect next token text to be text. Return the token we got."""
         token = self.next()
         if token.text not in options:
             self.fail(
-                f"Expected {list_or([repr(x) for x in options])}, got {token.text!r}",
+                f"Expected {list_or([repr(x) for x in options])}, got {token.text!r} ({token.location()})",
             )
         return token
 
@@ -366,7 +375,9 @@ class Parser:
                 )
             else:
                 expect_str = f"{token_type.__name__!r}"
-            self.fail(f"Expected {expect_str}, got {token!r}")
+            self.fail(
+                f"Expected {expect_str}, got {token!r} ({token.location()})",
+            )
         return token
 
     def parse_string_literal(self) -> Value[str]:
@@ -406,7 +417,9 @@ class Parser:
         text = token.text
         match_ = HEXADECIMAL.match(text) or NUMERIC.match(text)
         if match_ is None:
-            self.fail("Numeric literal regular expression did not match")
+            self.fail(
+                "Numeric literal regular expression did not match ({token.location()})",
+            )
         decimal, fractional, exponent = match_.groups()
 
         is_float = fractional or exponent
@@ -520,15 +533,18 @@ class Parser:
             return self.parse_identifier()
         if isinstance(peek, Comment):
             return self.parse_comment()
-        if self.lookup() == "{":
+        lookup = self.lookup()
+        if lookup == "{":
             return self.parse_table()
-        raise NotImplementedError(self.peek())
+        raise NotImplementedError(peek)
 
 
 def parse_lua_table(text: str, convert_lists: bool = True) -> object:
     """Parse lua table from lua source."""
     tokens = tokenize(text)
     # print(f'{tokens = }')
+    ##for token in tokens:
+    ##    print(token)
     parser = Parser(tokens)
     value = parser.parse_value()
     # print(value)
@@ -550,7 +566,9 @@ def parse_lua_table(text: str, convert_lists: bool = True) -> object:
             return read_assignment(value)
         if value.name == "Comment":
             return read_comment(value)
-        raise NotImplementedError(value.name)
+        if value.name == "Keyword":
+            return read_keyword(value)
+        raise NotImplementedError(f"{value.name} ({value})")
 
     def read_comment(value: Value[object]) -> str:
         assert value.name == "Comment"
@@ -607,6 +625,11 @@ def parse_lua_table(text: str, convert_lists: bool = True) -> object:
         if not convert_list:
             return table
         return [table[i + 1] for i in range(len(table))]
+
+    def read_keyword(value: Value[str]) -> object:
+        if value.args[0] == "nil":
+            return None
+        raise NotImplementedError(value)
 
     return read_value(value)
     # return value.unpack_join()

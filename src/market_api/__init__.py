@@ -58,7 +58,7 @@ AGENT: Final = (
 
 # publication : file_id, language_id
 # statistics : None
-# reviews: file_id
+# reviews: file_id, [offset, count]
 # login : email or name, password
 # register : name, email, password
 # publications : Optional: category_id, order_by, order_direction, offset, count, search, file_ids
@@ -82,6 +82,7 @@ class PUBLICATION_CATEGORY(IntEnum):  # noqa: N801
     Applications = 1
     Libraries = 2
     Scripts = 3
+    Wallpapers = 4
 
 
 class PUBLICATION_LANGUAGE(IntEnum):  # noqa: N801
@@ -576,12 +577,19 @@ class Review(NamedTuple):
 async def get_reviews(
     client: httpx.AsyncClient,
     publication_file_id: int,
+    offset: int = 0,
+    count: int | None = None,
 ) -> list[Review]:
     """Return list of reviews."""
+    args = {"file_id": publication_file_id}
+    if offset:
+        args["offset"] = offset
+    if count:
+        args["count"] = count
     response = await api_request(
         client,
         "reviews",
-        {"file_id": publication_file_id},
+        args,
     )
     assert isinstance(response["result"], list)
 
@@ -647,10 +655,10 @@ def indent(level: int, text: str) -> str:
     return "\n".join(prefix + line for line in text.splitlines())
 
 
-def pretty_print_response(
+def pretty_format_response(
     response: dict[str, Any] | list[Any] | set[Any] | tuple[Any, ...],
-) -> None:
-    """Pretty print response data."""
+) -> str:
+    """Pretty format response data."""
 
     def print_named_tuple(
         result: Iterable[object],
@@ -686,7 +694,14 @@ def pretty_print_response(
             return repr(result)
         raise NotImplementedError(type(result))
 
-    print(print_value(response))
+    return print_value(response)
+
+
+def pretty_print_response(
+    response: dict[str, Any] | list[Any] | set[Any] | tuple[Any, ...],
+) -> None:
+    """Pretty print response data."""
+    print(pretty_format_response(response))
 
 
 if __name__ == "__main__":
