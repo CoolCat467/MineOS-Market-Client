@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 # Market - MineOS App market API Interface
-# Copyright (C) 2023  CoolCat467
+# Copyright (C) 2024  CoolCat467
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,9 +40,10 @@ if TYPE_CHECKING:
 
 # HOST: Final = "http://mineos.modder.pw/MineOSAPI/2.04/"
 HOST: Final = "http://mineos.buttex.ru/MineOSAPI/2.04/"
-AGENT: Final = (
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Safari/537.36"
-)
+##AGENT: Final = (
+##    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Safari/537.36"
+##)
+AGENT = "CoolCat Market Client"
 
 ## Known script names:
 # verify : token -> html page
@@ -249,6 +250,8 @@ class SearchPublication(NamedTuple):
 async def get_publications(
     client: httpx.AsyncClient,
     category_id: PUBLICATION_CATEGORY | None = None,
+    order_by: str | None = None,
+    order_direction: str | None = None,
     offset: int | None = None,
     count: int = 100,
     search: str | None = None,
@@ -276,6 +279,10 @@ async def get_publications(
 
     if category_id is not None:
         request.update({"category_id": category_id})
+    if order_by is not None:
+        request.update({"order_by": order_by})
+    if order_direction is not None:
+        request.update({"order_direction": order_direction})
     if offset is not None:
         request.update({"offset": offset})
     if search is not None:
