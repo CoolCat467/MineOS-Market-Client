@@ -567,7 +567,11 @@ class ReviewVotes(NamedTuple):
 
     total: int = 0
     positive: int = 0
-    negative: int = 0
+
+    @property
+    def negative(self) -> int:
+        """Total count minus positive count."""
+        return self.total - self.positive
 
 
 class Review(NamedTuple):
