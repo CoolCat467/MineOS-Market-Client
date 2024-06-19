@@ -153,7 +153,7 @@ KEYWORDS = {
 IDENTIFIER = re.compile(r"^[a-z_][a-z_\d]*", re.IGNORECASE)
 COMMENT = re.compile("--.*\n")
 ##INTEGER = re.compile('^[\d]+')
-NUMERIC = re.compile(r"^(\d+)(\.\d+)?(e(?:-|\+)?\d+)?")
+NUMERIC = re.compile(r"^-?(\d+)(\.\d+)?(e(?:-|\+)?\d+)?")
 HEXADECIMAL = re.compile(
     r"(0x[a-f\d]+)(\.[a-f\d]+)?(p(?:-|\+)?\d+)?",
     re.IGNORECASE,
