@@ -6,6 +6,7 @@ from market_api import lua_parser
     ("constant", "expect"),
     [
         ("3.0", "Float[3.0]"),
+        ("-3.0", "Float[-3.0]"),
         ("3.1416", "Float[3.1416]"),
         ("314.16e-2", "Float[3.1416]"),
         ("0.31416E1", "Float[0.31416]"),
