@@ -96,6 +96,16 @@ class PUBLICATION_LANGUAGE(IntEnum):  # noqa: N801
     Russian = 71
 
 
+class FileType(IntEnum):
+    """Publication dependency file type enums."""
+
+    MAIN = 1
+    RESOURCE = 2
+    ICON = 3
+    LOCALIZATION = 4
+    PREVIEW = 5
+
+
 def get_url(script: str) -> str:
     """Return URL of script."""
     return f"{HOST}{script}.php"
@@ -335,6 +345,7 @@ class Dependency(NamedTuple):
     source_url: str
     path: str
     version: int | float
+    type_id: FileType
     publication_name: str | None = None
     category_id: int | None = None
 
@@ -364,7 +375,6 @@ class Publication(NamedTuple):
     average_rating: float = 0
     whats_new: str | None = None
     whats_new_version: float | None = None
-    preview_url: str | None = None
 
 
 async def get_publication(
