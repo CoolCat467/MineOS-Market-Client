@@ -692,7 +692,7 @@ async def mark_downloaded(
             "file_id": file_id,
         },
     )
-    return response["updated"]
+    return bool(response["updated"])
 
 
 def indent(level: int, text: str) -> str:
