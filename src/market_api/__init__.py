@@ -56,6 +56,7 @@ AGENT = "CoolCat Market Client"
 # message : token, user_name, text
 # messages: token, user_name
 # review_vote: token, review_id, rating (0 (not helpful)|1 (yes helpful))
+# download: token, file_id
 
 # publication : file_id, language_id
 # statistics : None
@@ -250,6 +251,7 @@ class SearchPublication(NamedTuple):
     version: int | float
     category_id: int
     reviews_count: int
+    downloads: int
 
     icon_url: str = ""
 
@@ -669,6 +671,28 @@ async def vote_review_helpful(
     value = response.get("result", "<No response>")
     assert isinstance(value, str)
     return value
+
+
+async def mark_downloaded(
+    client: httpx.AsyncClient,
+    token: str,
+    file_id: int,
+) -> bool:
+    """Send telemetry signal that you downloaded a publication.
+
+    Return if updated server's record for this user's token.
+
+    Official client records all downloads since Jul 4, 2024, 9:27 AM CDT.
+    """
+    response = await api_request(
+        client,
+        "download",
+        {
+            "token": token,
+            "file_id": file_id,
+        },
+    )
+    return response["updated"]
 
 
 def indent(level: int, text: str) -> str:
