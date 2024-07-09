@@ -24,7 +24,7 @@ from market_api import (
 async def async_run() -> None:
     """Run async."""
     # Create httpx client
-    async with httpx.AsyncClient() as client:  # http2 = True
+    async with httpx.AsyncClient(timeout=15) as client:  # http2 = True
         file_id = 1936
         # Get publication number and print it out nicely
         pretty_print_response(

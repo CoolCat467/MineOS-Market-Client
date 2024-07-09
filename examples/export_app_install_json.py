@@ -113,7 +113,7 @@ async def async_run() -> None:
 
     print("\nDownloading Manifest...")
     # Create httpx client
-    async with httpx.AsyncClient() as client:  # http2 = True
+    async with httpx.AsyncClient(timeout=15) as client:  # http2 = True
         # Retrieve manifests
         all_manifests = await retrieve_details(
             client,
