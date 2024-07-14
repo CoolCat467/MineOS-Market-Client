@@ -677,7 +677,7 @@ async def mark_downloaded(
     client: httpx.AsyncClient,
     token: str,
     file_id: int,
-) -> bool:
+) -> dict[str, bool]:
     """Send telemetry signal that you downloaded a publication.
 
     Return if updated server's record for this user's token.
@@ -692,7 +692,10 @@ async def mark_downloaded(
             "file_id": file_id,
         },
     )
-    return bool(response["updated"])
+    assert "result" in response
+    value = response["result"]
+    assert isinstance(value, dict)
+    return value
 
 
 def indent(level: int, text: str) -> str:
