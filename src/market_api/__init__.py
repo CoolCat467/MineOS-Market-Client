@@ -377,6 +377,7 @@ class Publication(NamedTuple):
     average_rating: float = 0
     whats_new: str | None = None
     whats_new_version: float | None = None
+    downloads: int = 0
 
 
 async def get_publication(
