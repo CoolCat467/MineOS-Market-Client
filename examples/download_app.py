@@ -31,6 +31,7 @@ import re
 
 import httpx
 import trio
+
 from market_api import (
     PUBLICATION_LANGUAGE,
     Dependency,

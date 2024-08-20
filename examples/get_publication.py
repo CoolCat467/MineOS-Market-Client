@@ -12,6 +12,7 @@ __license__ = "MIT"
 
 import httpx
 import trio
+
 from market_api import (
     PUBLICATION_LANGUAGE,
     get_publication,
