@@ -406,7 +406,7 @@ async def get_publication(
             },
         )
     except Exception as ex:
-        if sys.sys.version_info >= (3, 11):
+        if sys.version_info >= (3, 11):
             ex.add_note(f"publication {file_id = }")
         raise
     return Publication(**result)
