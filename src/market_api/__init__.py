@@ -28,6 +28,7 @@ __version__ = "0.0.0"
 __license__ = "GNU General Public License Version 3"
 
 
+import sys
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any, Final, NamedTuple
 
@@ -405,7 +406,8 @@ async def get_publication(
             },
         )
     except Exception as ex:
-        ex.add_note(f"publication {file_id = }")
+        if sys.sys.version_info >= (3, 11):
+            ex.add_note(f"publication {file_id = }")
         raise
     return Publication(**result)
 
