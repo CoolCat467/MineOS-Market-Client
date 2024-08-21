@@ -38,8 +38,8 @@ if TYPE_CHECKING:
 
     import httpx
 
-# HOST: Final = "http://mineos.modder.pw/MineOSAPI/2.04/"
-HOST: Final = "http://mineos.buttex.ru/MineOSAPI/2.04/"
+# HOST = "http://mineos.modder.pw/MineOSAPI/2.04/"
+HOST = "http://mineos.buttex.ru/MineOSAPI/2.04/"
 ##AGENT: Final = (
 ##    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Safari/537.36"
 ##)
@@ -78,23 +78,23 @@ LICENSES: Final = {
 ORDER_BY: Final = ("popularity", "rating", "name", "date")
 
 
-class PUBLICATION_CATEGORY(IntEnum):  # noqa: N801
+class PublicationCategory(IntEnum):
     """Publication category enums."""
 
-    Applications = 1
-    Libraries = 2
-    Scripts = 3
-    Wallpapers = 4
+    APPLICATIONS = 1
+    LIBRARIES = 2
+    SCRIPTS = 3
+    WALLPAPERS = 4
 
 
-class PUBLICATION_LANGUAGE(IntEnum):  # noqa: N801
+class PublicationLanguage(IntEnum):
     """Publication language enums.
 
     Used in `get_publication` for localization-dependant strings.
     """
 
-    English = 18
-    Russian = 71
+    ENGLISH = 18
+    RUSSIAN = 71
 
 
 class FileType(IntEnum):
@@ -261,7 +261,7 @@ class SearchPublication(NamedTuple):
 
 async def get_publications(
     client: httpx.AsyncClient,
-    category_id: PUBLICATION_CATEGORY | None = None,
+    category_id: PublicationCategory | None = None,
     order_by: str | None = None,
     order_direction: str | None = None,
     offset: int | None = None,
@@ -273,7 +273,7 @@ async def get_publications(
 
     None of the arguments except client are required.
 
-    Category ID should be one of the PUBLICATION_CATEGORY values.
+    Category ID should be one of the PublicationCategory values.
 
     Offset is an offset in where to start returning search data from
     so you can see more than just the top 100 publications.
@@ -314,7 +314,7 @@ async def get_publications(
 
 async def get_all_publications(
     client: httpx.AsyncClient,
-    category_id: PUBLICATION_CATEGORY,
+    category_id: PublicationCategory,
     per_request: int = 100,
 ) -> dict[int, SearchPublication]:
     """Return a dictionary mapping publication ids to publication objects.
@@ -393,14 +393,20 @@ async def get_publication(
     )
     result = response["result"]
     assert isinstance(result, dict)
-    result.update(
-        {
-            "dependencies_data": {
-                k: Dependency(**v)
-                for k, v in result.get("dependencies_data", {}).items()
+    try:
+        result.update(
+            {
+                "dependencies_data": {
+                    k: Dependency(**v)
+                    for k, v in dict(
+                        result.get("dependencies_data", {}),
+                    ).items()
+                },
             },
-        },
-    )
+        )
+    except Exception as ex:
+        ex.add_note(f"publication {file_id = }")
+        raise
     return Publication(**result)
 
 
@@ -413,7 +419,7 @@ async def update_publication(
     path: str,
     description: str,
     license_id: int,
-    category_id: PUBLICATION_CATEGORY,
+    category_id: PublicationCategory,
     dependencies: list[int] | None = None,
     whats_new: str | None = None,
 ) -> dict[str, object]:
@@ -457,7 +463,7 @@ async def upload_publication(
     path: str,
     description: str,
     license_id: int,
-    category_id: PUBLICATION_CATEGORY,
+    category_id: PublicationCategory,
     dependencies: list[int] | None = None,
     whats_new: str | None = None,
 ) -> dict[str, object]:
