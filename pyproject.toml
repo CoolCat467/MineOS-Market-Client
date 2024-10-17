@@ -29,7 +29,7 @@ classifiers = [
 ]
 keywords = ["minecraft", "mineos", "api", "client", "lua"]
 dependencies = [
-    "trio~=0.26.0",
+    "trio~=0.27.0",
     "httpx~=0.27.0",
 ]
 
