@@ -233,8 +233,8 @@ def dict_to_lang(
         indent = line.count("\t") * "\t"
 
         if (
-            " = " in line
-            and line.split(" = ")[1].strip() == "["
+            (" = " in line
+            and line.split(" = ")[1].strip() == "[")
             or line.strip() == "["
         ):
             line = line.replace("[", "{", 1)
