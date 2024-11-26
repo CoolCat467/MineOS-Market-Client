@@ -229,7 +229,7 @@ T = TypeVar("T")
 class Value(Generic[T]):
     """A type value, potentially collection of multiple."""
 
-    __slots__ = ("name", "args")
+    __slots__ = ("args", "name")
 
     def __init__(
         self,
@@ -304,7 +304,7 @@ def list_or(values: Collection[str]) -> str:
 class Parser:
     """Implementation of the lua parser."""
 
-    __slots__ = ("tokens", "i", "next_indexed_field")
+    __slots__ = ("i", "next_indexed_field", "tokens")
 
     def __init__(self, tokens: list[Token]) -> None:
         """Initialize with tokens list."""
