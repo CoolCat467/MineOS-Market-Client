@@ -728,13 +728,21 @@ def pretty_format_response(
         value = ",\n".join(fields)
         return f"(\n{indent(2, value)}\n)"
 
-    def print_list(result: Iterable[Any]) -> str:
+    def print_iterable(result: Iterable[Any], end: str = "[]") -> str:
         if not result:
-            return "[]"
+            return end
+        value = ",\n".join(map(print_value, result))
+        return f"{end[0]}\n{indent(2, value)}\n{end[1]}"
+
+    def print_tuple(result: tuple[Any, ...]) -> str:
         if hasattr(result, "_fields"):
             return print_named_tuple(result, result._fields)
-        value = ",\n".join(map(print_value, result))
-        return f"[\n{indent(2, value)}\n]"
+        return print_iterable(result, "()")
+
+    def print_set(result: set[Any]) -> str:
+        if not result:
+            return "set()"
+        return print_iterable(result, "{}")
 
     def print_dict(result: dict[object, object]) -> str:
         if not result:
@@ -744,13 +752,18 @@ def pretty_format_response(
         return f"{{\n{indent(2, value)}\n}}"
 
     def print_value(result: object) -> str:
-        if isinstance(result, list | tuple | set):
-            return print_list(result)
+        if isinstance(result, tuple):
+            return print_tuple(result)
+        if isinstance(result, list):
+            return print_iterable(result)
+        if isinstance(result, set):
+            return print_set(result)
         if isinstance(result, dict):
             return print_dict(result)
         if isinstance(result, str | int | float | None):
             return repr(result)
-        raise NotImplementedError(type(result))
+        # raise NotImplementedError(type(result))
+        return repr(result)
 
     return print_value(response)
 
