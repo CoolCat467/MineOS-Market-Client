@@ -1,6 +1,7 @@
 # MineOS-Market-Client
-Python Client for MineOS market
+Python Client for MineOS App Market
 
+[![CI](https://github.com/CoolCat467/MineOS-Market-Client/actions/workflows/ci.yml/badge.svg)](https://github.com/CoolCat467/MineOS-Market-Client/actions/workflows/ci.yml)
 <!-- BADGIE TIME -->
 
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
