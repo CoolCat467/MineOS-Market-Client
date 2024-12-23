@@ -70,7 +70,7 @@ DOWNLOAD_PATHS = {
 }
 
 
-def get_dependancy_path(main_file_path: str, dependency: Dependency) -> str:
+def get_dependency_path(main_file_path: str, dependency: Dependency) -> str:
     """Return dependency path."""
     # If is publication
     if dependency.publication_name:
@@ -126,10 +126,10 @@ async def download_publication(
 
     if publication.dependencies:
         async with trio.open_nursery() as nursery:
-            for depencency_id in publication.all_dependencies:
-                dependency = publication.dependencies_data[depencency_id]
+            for dependency_id in publication.all_dependencies:
+                dependency = publication.dependencies_data[dependency_id]
 
-                dependency_path = get_dependancy_path(
+                dependency_path = get_dependency_path(
                     main_file_path,
                     dependency,
                 )

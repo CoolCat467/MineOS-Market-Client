@@ -87,12 +87,12 @@ async def retrieve_details(
         except APIError:
             # If dependency does not exist, should be given in
             # publication's `dependencies_data` section.
-            files[dependancy_id] = publication.dependencies_data[dependancy_id]
+            files[dependency_id] = publication.dependencies_data[dependency_id]
 
     # Start retrieving all dependencies at the same time
     async with trio.open_nursery() as nursery:
-        for dependancy_id in sorted(deps):
-            nursery.start_soon(retrieve_dep, dependancy_id)
+        for dependency_id in sorted(deps):
+            nursery.start_soon(retrieve_dep, dependency_id)
 
     return files
 

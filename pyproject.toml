@@ -30,14 +30,13 @@ classifiers = [
 keywords = ["minecraft", "mineos", "api", "client", "lua"]
 dependencies = [
     "trio~=0.27.0",
-    "httpx~=0.28.0",
+    "httpx~=0.28.1",
 ]
 
 [tool.setuptools.dynamic]
 version = {attr = "market_api.__init__.__version__"}
 
 [project.urls]
-"Homepage" = "https://github.com/CoolCat467/MineOS-Market-Client"
 "Source" = "https://github.com/CoolCat467/MineOS-Market-Client"
 "Bug Tracker" = "https://github.com/CoolCat467/MineOS-Market-Client/issues"
 
@@ -45,12 +44,18 @@ version = {attr = "market_api.__init__.__version__"}
 market_api = ["py.typed"]
 
 [tool.mypy]
-mypy_path = "src"
+files = ["src/market_api/",]
 check_untyped_defs = true
+disallow_any_decorated = true
 disallow_any_generics = true
+disallow_any_unimported = true
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
 disallow_untyped_calls = true
+disallow_untyped_decorators = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
+local_partial_types = true
 no_implicit_optional = true
 no_implicit_reexport = true
 show_column_numbers = true
@@ -73,7 +78,6 @@ disable_all_dunder_policy = true
 
 [tool.black]
 line-length = 79
-target-version = ['py310']
 
 [tool.ruff]
 line-length = 79
@@ -93,12 +97,16 @@ select = [
     "EXE",   # flake8-executable
     "F",     # pyflakes
     "FA",    # flake8-future-annotations
+    "FLY",   # flynt
+    "FURB",  # refurb
     "I",     # isort
+    "ICN",   # flake8-import-conventions
     "N",     # pep8-naming
     "PIE",   # flake8-pie
     "PT",    # flake8-pytest-style
     "PYI",   # flake8-pyi
     "Q",     # flake8-quotes
+    "R",     # Refactor
     "RET",   # flake8-return
     "RUF",   # Ruff-specific rules
     "S",     # flake8-bandit
@@ -110,14 +118,15 @@ select = [
     "YTT",   # flake8-2020
 ]
 extend-ignore = [
-    "D203",   # One blank line before class
-    "D204",   # blank line thing
+    "D203",   # one-blank-line-before-class
+    "D204",   # one-blank-line-after-class
     "D211",   # no-blank-line-before-class
     "D213",   # multi-line-summary-second-line
-    "D417",   # "Missing argument descriptions"
+    "D417",   # undocumented-param "Missing argument descriptions"
     "E501",   # line-too-long
-    "S101",   # use of assert for tests and type narrowing
-    "SIM117", # Use multiple with statements at the same time
+    "PYI041", # redundant-numeric-union
+    "S101",   # assert (use of assert for tests and type narrowing)
+    "SIM117", # multiple-with-statements
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -128,14 +137,14 @@ extend-ignore = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--cov-report term-missing --cov=market_api"
+addopts = "--cov-report=xml --cov-report=term-missing --cov=market_api"
 testpaths = [
     "tests",
 ]
 
 [tool.coverage.run]
 branch = true
-source = ["src"]
+source_pkgs = ["market_api"]
 omit = []
 
 [tool.coverage.report]
@@ -160,32 +169,3 @@ partial_branches = [
     "if .* or not _t.TYPE_CHECKING:",
     "if .* or not t.TYPE_CHECKING:",
 ]
-
-[tool.tox]
-legacy_tox_ini = """
-    [tox]
-    envlist = py310, py311, py312, mypy, pytest
-    isolated_build = false
-
-    [gh-actions]
-    python =
-        3.10: py310, mypy, pytest
-        3.11: py311, mypy
-        3.12: py312, mypy, pytest
-
-    [testenv]
-    setenv =
-        PYTHONPATH = {toxinidir}
-
-    [testenv:pytest]
-    deps =
-        pytest
-        pytest-cov
-        pytest-trio
-    commands = pytest --basetemp={envtmpdir}
-
-    [testenv:mypy]
-    deps =
-        mypy
-    commands = mypy src
-"""

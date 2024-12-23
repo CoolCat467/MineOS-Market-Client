@@ -1,6 +1,6 @@
 ci:
   autofix_prs: true
-  autoupdate_schedule: weekly
+  autoupdate_schedule: quarterly
   submodules: false
   skip: [badgie]
 
@@ -18,19 +18,12 @@ repos:
       - id: check-case-conflict
       - id: sort-simple-yaml
         files: .pre-commit-config.yaml
-  - repo: https://github.com/hadialqattan/pycln
-    rev: v2.4.0
-    hooks:
-      - id: pycln
-        args: [--config=pyproject.toml, src]
-        types: [file]
-        types_or: [python, pyi]
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 24.10.0
     hooks:
       - id: black
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.3
+    rev: v0.8.4
     hooks:
       - id: ruff
         types: [file]
@@ -45,3 +38,19 @@ repos:
       - id: codespell
         additional_dependencies:
           - tomli
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.28.4
+    hooks:
+      - id: typos
+  - repo: https://github.com/woodruffw/zizmor-pre-commit
+    rev: v0.10.0
+    hooks:
+      - id: zizmor
+  - repo: local
+    hooks:
+      - id: project-requirements
+        name: regenerate requirements.in
+        language: python
+        entry: tools/project_requirements.py
+        pass_filenames: false
+        files: ^(test-requirements.in)|(pyproject.toml)$
