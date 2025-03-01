@@ -16,14 +16,15 @@ repos:
       - id: check-merge-conflict
       - id: mixed-line-ending
       - id: check-case-conflict
+      - id: check-added-large-files
       - id: sort-simple-yaml
         files: .pre-commit-config.yaml
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.10.0
+    rev: 25.1.0
     hooks:
       - id: black
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.6
+    rev: v0.9.9
     hooks:
       - id: ruff
         types: [file]
@@ -34,24 +35,16 @@ repos:
     hooks:
       - id: badgie
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
       - id: codespell
         additional_dependencies:
           - tomli
   - repo: https://github.com/crate-ci/typos
-    rev: dictgen-v0.3.1
+    rev: v1.30.0
     hooks:
       - id: typos
   - repo: https://github.com/woodruffw/zizmor-pre-commit
-    rev: v1.0.0
+    rev: v1.4.1
     hooks:
       - id: zizmor
-  - repo: local
-    hooks:
-      - id: project-requirements
-        name: regenerate requirements.in
-        language: python
-        entry: tools/project_requirements.py
-        pass_filenames: false
-        files: ^(test-requirements.in)|(pyproject.toml)$
