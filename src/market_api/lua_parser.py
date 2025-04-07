@@ -561,14 +561,14 @@ def parse_lua_table(text: str, convert_lists: bool = True) -> object:
         }:
             return value.args[0]
         if value.name == "Table":
-            return read_table(cast(Value[Value[object]], value))
+            return read_table(cast("Value[Value[object]]", value))
         if value.name == "Assignment":
             return read_assignment(value)
         if value.name == "Comment":
             return read_comment(value)
         if value.name == "Keyword":
             assert isinstance(value.args[0], str)
-            return read_keyword(cast(Value[str], value))
+            return read_keyword(cast("Value[str]", value))
         raise NotImplementedError(f"{value.name} ({value})")
 
     def read_comment(value: Value[object]) -> str:
