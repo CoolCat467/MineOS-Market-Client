@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 # Lua Parser
-# Copyright (C) 2023  CoolCat467
+# Copyright (C) 2023-2025  CoolCat467
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ from collections import deque
 from typing import (
     TYPE_CHECKING,
     Any,
+    Final,
     Generic,
     NamedTuple,
     NoReturn,
@@ -125,7 +126,7 @@ class End(Token):
     __slots__ = ()
 
 
-KEYWORDS = {
+KEYWORDS: Final = {
     "and",
     "break",
     "do",
@@ -150,11 +151,11 @@ KEYWORDS = {
     "while",
 }
 
-IDENTIFIER = re.compile(r"^[a-z_][a-z_\d]*", re.IGNORECASE)
-COMMENT = re.compile("--.*\n")
+IDENTIFIER: Final = re.compile(r"^[a-z_][a-z_\d]*", re.IGNORECASE)
+COMMENT: Final = re.compile("--.*\n")
 ##INTEGER = re.compile('^[\d]+')
-NUMERIC = re.compile(r"^-?(\d+)(\.\d+)?(e(?:-|\+)?\d+)?")
-HEXADECIMAL = re.compile(
+NUMERIC: Final = re.compile(r"^-?(\d+)(\.\d+)?(e(?:-|\+)?\d+)?")
+HEXADECIMAL: Final = re.compile(
     r"(0x[a-f\d]+)(\.[a-f\d]+)?(p(?:-|\+)?\d+)?",
     re.IGNORECASE,
 )

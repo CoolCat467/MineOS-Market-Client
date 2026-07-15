@@ -31,7 +31,7 @@ import json
 import os
 from typing import Any
 
-import httpx
+import httpx2 as httpx
 import trio
 
 from market_api import (
@@ -110,7 +110,12 @@ def manifest_to_dict(
 async def async_run() -> None:
     """Run async."""
     print("Good example file ID is `1936`")
-    file_id = int(input("Input File ID to save manifest of: "))
+    file_id = int(
+        await trio.to_thread.run_sync(
+            input,
+            "Input File ID to save manifest of: ",
+        ),
+    )
 
     print("\nDownloading Manifest...")
     # Create httpx client
@@ -126,7 +131,10 @@ async def async_run() -> None:
 
     print("\nManifest download complete.")
 
-    filename = input(f"\nSave file in {os.getcwd()!r} as given filename: ")
+    filename = await trio.to_thread.run_sync(
+        input,
+        f"\nSave file in {os.getcwd()!r} as given filename: ",
+    )
 
     # Add .json if no extension given
     if "." not in filename:

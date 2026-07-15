@@ -10,7 +10,7 @@ __title__ = "Get Publication Example"
 __author__ = "CoolCat467"
 __license__ = "MIT"
 
-import httpx
+import httpx2 as httpx
 import trio
 
 from market_api import (

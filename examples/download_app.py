@@ -29,7 +29,7 @@ __license__ = "GNU General Public License Version 3"
 
 import re
 
-import httpx
+import httpx2 as httpx
 import trio
 
 from market_api import (
@@ -146,17 +146,22 @@ async def async_run() -> None:
     """Run async."""
     path = await trio.Path("mineos").absolute()
     consent = (
-        input(
+        await trio.to_thread.run_sync(
+            input,
             f"Making sure, it is ok for us to download files to {path}? (y/N): ",
-        ).lower()
-        == "y"
-    )
+        )
+    ).lower() == "y"
     if not consent:
         print("Exiting.")
         return
 
     print("Good example file ID is `106`")
-    file_id = int(input("Input Publication ID to download: "))
+    file_id = int(
+        await trio.to_thread.run_sync(
+            input,
+            "Input Publication ID to download: ",
+        ),
+    )
 
     print("\nDownloading Publication Manifest...")
     # Create httpx client
