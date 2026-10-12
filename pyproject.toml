@@ -29,8 +29,8 @@ classifiers = [
 ]
 keywords = ["minecraft", "mineos", "api", "client", "lua"]
 dependencies = [
-    "trio~=0.33.0",
-    "httpx2~=2.7.0",
+    "trio>=0.34.0",
+    "httpx2>=2.13.1",
 ]
 
 [tool.setuptools.dynamic]
