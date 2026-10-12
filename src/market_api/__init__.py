@@ -41,7 +41,6 @@ if TYPE_CHECKING:
 
 # HOST = "http://mineos.modder.pw/MineOSAPI/2.04/"
 HOST = "http://mineos.buttex.ru/MineOSAPI/2.04/"
-HOST = "http://192.168.1.145:3004/MineOSAPI/2.04/"
 ##AGENT: Final = (
 ##    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.119 Safari/537.36"
 ##)
